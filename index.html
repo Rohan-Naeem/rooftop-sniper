@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rooftop Sniper - Free Online Sniper Shooting Game</title>
 <meta name="description" content="Play Rooftop Sniper free in your browser. Choose Time Attack or Endless mode, pick a map and a difficulty, stop the thieves and spare the civilians. No download needed.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<meta name="theme-color" content="#120a2b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -13,12 +19,14 @@
 <body>
 
 <header class="top">
-  <span class="brand">Rooftop Sniper</span>
+  <a href="#stage" class="brand-logo" id="brandLogo" aria-label="Rooftop Sniper - Home">
+    <img src="assets/logo.svg" alt="Rooftop Sniper" class="logo-img" width="220" height="50">
+  </a>
   <button id="muteBtn" class="mute" type="button">Sound on</button>
 </header>
 
 <main>
-  <div class="stage">
+  <div class="stage" id="stage">
     <canvas id="game" width="960" height="540" aria-label="Rooftop Sniper game area"></canvas>
 
     <!-- Step 0: landing. Start button on the left, sniper stands on the right (drawn in the canvas) -->
@@ -67,9 +75,23 @@
       <ul class="help-list" id="helpList"></ul>
       <button id="helpBtn" class="btn" type="button">Got it, start!</button>
     </section>
+
+    <!-- Rotate to landscape prompt for mobile devices -->
+    <div class="rotate-prompt hidden" id="rotatePrompt">
+      <div class="rotate-icon">
+        <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="3"></rect>
+          <path d="M12 18h.01"></path>
+          <path d="M19 8l3-3-3-3"></path>
+          <path d="M22 5c-4-4-10-4-14 0"></path>
+        </svg>
+      </div>
+      <p class="rotate-text">Rotate to landscape</p>
+      <p class="rotate-sub">Turn your phone sideways for full screen play</p>
+    </div>
   </div>
 
-  <section class="info">
+  <section class="info" id="how-to-play">
     <h2>How to play</h2>
     <p>You are a sniper on a rooftop. Look through your scope and stop the thieves who pop out of the windows. Thieves wear a black mask and a striped shirt. Civilians have a visible face and a colored shirt. Do not shoot them.</p>
     <h3>Game modes</h3>
@@ -92,6 +114,9 @@
     <h3>Questions</h3>
     <p><b>Is it free?</b> Yes. Open the page and play. Nothing to install.</p>
     <p><b>Does it work on mobile?</b> Yes. Turn your phone sideways for a bigger view.</p>
+    <div style="margin-top:28px;text-align:center;">
+      <a href="#stage" class="btn xl" id="jumpToPlayBtn" style="display:inline-block;text-decoration:none;">Play Now</a>
+    </div>
   </section>
 </main>
 

@@ -337,7 +337,7 @@
     if (wantReload !== reloadShown) { reloadShown = wantReload; $('reloadBtn').classList.toggle('hidden', !wantReload); }
     if (scene === 'leaving') {
       walkX += 300 * dt;
-      if (walkX > W + 140) { scene = 'menu'; openWizard(0); }
+      if (walkX > W + 140) { scene = 'menu'; openWizard(0); checkOrientation(); }
     }
     if (state !== 'play' || helpOpen) return;
 
@@ -640,13 +640,167 @@
     if (stepIdx + 1 < steps.length) openWizard(stepIdx + 1); else startGame();   // last choice starts the game
   }
 
-  $('startBtn').addEventListener('click', function () {
-    audio(); show(null); scene = 'leaving'; walkX = W - 190;
-  });
-  $('wzBack').addEventListener('click', function () {
-    if (stepIdx > 0) openWizard(stepIdx - 1);
-    else { scene = 'landing'; show('landing'); }
-  });
+  /* ---------- Mobile Fullscreen, Rotation & Desktop Lock Helpers ---------- */
+  function getStage() {
+    return $('stage') || document.querySelector('.stage');
+  }
+
+  function isMobileOrTablet() {
+    return isTouch || (window.innerWidth <= 1024 && window.innerHeight <= 1024) ||
+           /Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(navigator.userAgent);
+  }
+
+  function enterFullscreen(elem) {
+    var el = elem || getStage();
+    if (!el) return;
+    try {
+      if (el.requestFullscreen) {
+        var p = el.requestFullscreen();
+        if (p && p.catch) p.catch(function () {});
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.mozRequestFullScreen) {
+        el.mozRequestFullScreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+      }
+    } catch (e) {}
+  }
+
+  function exitFullscreen() {
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+        if (document.exitFullscreen) {
+          var p = document.exitFullscreen();
+          if (p && p.catch) p.catch(function () {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        }
+      }
+    } catch (e) {}
+  }
+
+  function lockLandscape() {
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(function () {});
+      } else if (screen.lockOrientation) {
+        screen.lockOrientation('landscape');
+      } else if (screen.webkitLockOrientation) {
+        screen.webkitLockOrientation('landscape');
+      } else if (screen.mozLockOrientation) {
+        screen.mozLockOrientation('landscape');
+      } else if (screen.msLockOrientation) {
+        screen.msLockOrientation('landscape');
+      }
+    } catch (e) {}
+  }
+
+  function unlockOrientation() {
+    try {
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      } else if (screen.unlockOrientation) {
+        screen.unlockOrientation();
+      }
+    } catch (e) {}
+  }
+
+  function checkOrientation() {
+    var prompt = $('rotatePrompt');
+    if (!prompt) return;
+    var mobile = isMobileOrTablet();
+    var isPortrait = window.innerHeight > window.innerWidth;
+    var inActiveGame = (scene === 'menu' || scene === 'leaving' || state === 'play' || state === 'over');
+    if (mobile && inActiveGame && isPortrait) {
+      prompt.classList.remove('hidden');
+    } else {
+      prompt.classList.add('hidden');
+    }
+  }
+
+  function activateGameView() {
+    var stage = getStage();
+    window.scrollTo(0, 0);
+    if (isMobileOrTablet()) {
+      enterFullscreen(stage);
+      lockLandscape();
+      if (stage) stage.classList.add('mobile-fullscreen');
+      document.body.classList.add('in-game');
+      document.body.classList.add('game-active');
+      checkOrientation();
+    } else {
+      document.body.classList.add('game-active');
+    }
+  }
+
+  function exitGameView() {
+    document.body.classList.remove('game-active');
+    document.body.classList.remove('game-locked');
+    document.body.classList.remove('in-game');
+    var stage = getStage();
+    if (stage) stage.classList.remove('mobile-fullscreen');
+    var prompt = $('rotatePrompt');
+    if (prompt) prompt.classList.add('hidden');
+    exitFullscreen();
+    unlockOrientation();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  var startButton = $('startBtn');
+  if (startButton) {
+    startButton.addEventListener('click', function () {
+      audio();
+      activateGameView();
+      show(null);
+      scene = 'leaving';
+      walkX = W - 190;
+    });
+  }
+
+  var backButton = $('wzBack');
+  if (backButton) {
+    backButton.addEventListener('click', function () {
+      if (stepIdx > 0) openWizard(stepIdx - 1);
+      else {
+        scene = 'landing';
+        show('landing');
+        exitGameView();
+      }
+    });
+  }
+
+  /* Internal navigation links */
+  var brandLink = $('brandLogo');
+  if (brandLink) {
+    brandLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      scene = 'landing';
+      show('landing');
+      exitGameView();
+      var stage = getStage();
+      if (stage && stage.scrollIntoView) {
+        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  var jumpBtn = $('jumpToPlayBtn');
+  if (jumpBtn) {
+    jumpBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var stage = getStage();
+      if (stage && stage.scrollIntoView) {
+        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      var sBtn = $('startBtn');
+      if (sBtn) sBtn.focus();
+    });
+  }
   // How to play popup (shown at the start of every round, game waits until closed)
   function openHelp() {
     var endless = G.mode === 'endless';
@@ -694,7 +848,41 @@
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   window.addEventListener('keydown', function (e) {
     if ((e.key === 'r' || e.key === 'R') && state === 'play' && !helpOpen) startReload();
+    if (e.key === 'Escape') {
+      if (scene === 'landing') exitGameView();
+    }
   });
+
+  function onFullscreenChange() {
+    var isFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    if (!isFull) {
+      var stage = getStage();
+      if (stage) stage.classList.remove('mobile-fullscreen');
+      if (scene === 'landing') {
+        exitGameView();
+      }
+    }
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.addEventListener('mozfullscreenchange', onFullscreenChange);
+
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', function () {
+    setTimeout(checkOrientation, 200);
+  });
+
+  window.addEventListener('wheel', function (e) {
+    if (document.body.classList.contains('game-active') || document.body.classList.contains('game-locked')) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  window.addEventListener('touchmove', function (e) {
+    if (document.body.classList.contains('game-active') || document.body.classList.contains('game-locked') || (state === 'play' && !helpOpen)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
 
   /* ---------- Start ---------- */
   built.night = buildMap(MAPS.night);

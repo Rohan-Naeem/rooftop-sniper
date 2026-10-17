@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="scopeSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1b0c36" />
+      <stop offset="45%" stop-color="#701a68" />
+      <stop offset="75%" stop-color="#d63a73" />
+      <stop offset="100%" stop-color="#ffb142" />
+    </linearGradient>
+
+    <linearGradient id="goldBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff1b8" />
+      <stop offset="35%" stop-color="#ffc533" />
+      <stop offset="70%" stop-color="#d48c08" />
+      <stop offset="100%" stop-color="#fff5cc" />
+    </linearGradient>
+
+    <linearGradient id="textRooftopGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="55%" stop-color="#fff2d6" />
+      <stop offset="100%" stop-color="#ffca42" />
+    </linearGradient>
+
+    <linearGradient id="textSniperGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4df3ff" />
+      <stop offset="50%" stop-color="#2bbbd4" />
+      <stop offset="100%" stop-color="#5ff4ff" />
+    </linearGradient>
+
+    <linearGradient id="cyanGlowLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff4d8d" />
+      <stop offset="50%" stop-color="#3be0e8" />
+      <stop offset="100%" stop-color="#ffc533" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="laserGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ==================== EMBLEM (LEFT) ==================== -->
+  <g transform="translate(10, 8)">
+    <!-- Scope Outer Bezel & Glow -->
+    <circle cx="52" cy="52" r="50" fill="#090514" />
+    <circle cx="52" cy="52" r="49" fill="none" stroke="url(#goldBezel)" stroke-width="3.5" />
+    <circle cx="52" cy="52" r="46" fill="none" stroke="#3be0e8" stroke-width="1.2" opacity="0.85" />
+
+    <!-- Scope Inner Sunset Skyline -->
+    <g clip-path="url(#scopeClip)">
+      <clipPath id="scopeClip">
+        <circle cx="52" cy="52" r="45" />
+      </clipPath>
+
+      <!-- Sunset Sky Gradient -->
+      <rect x="7" y="7" width="90" height="90" fill="url(#scopeSky)" />
+
+      <!-- Glowing Sun / Moon -->
+      <circle cx="68" cy="38" r="14" fill="#ffe399" opacity="0.9" />
+      <circle cx="68" cy="38" r="22" fill="#ff7a59" opacity="0.35" />
+
+      <!-- Far Rooftop Buildings -->
+      <g fill="#38104d">
+        <rect x="14" y="52" width="16" height="45" />
+        <rect x="32" y="44" width="14" height="53" />
+        <rect x="48" y="38" width="18" height="59" />
+        <rect x="68" y="48" width="16" height="49" />
+        <rect x="86" y="56" width="14" height="41" />
+      </g>
+
+      <!-- Near Rooftops (Dark Silhouettes) with antennas & water towers -->
+      <g fill="#150826">
+        <rect x="8" y="62" width="22" height="35" />
+        <rect x="26" y="54" width="20" height="43" />
+        <!-- Antenna -->
+        <line x1="36" y1="44" x2="36" y2="54" stroke="#150826" stroke-width="2" />
+        <circle cx="36" cy="43" r="1.5" fill="#ff3b47" />
+
+        <rect x="44" y="58" width="26" height="39" />
+        <!-- Water tower on roof -->
+        <rect x="52" y="50" width="10" height="8" rx="2" fill="#150826" />
+        <line x1="54" y1="58" x2="54" y2="60" stroke="#150826" stroke-width="1.5" />
+        <line x1="60" y1="58" x2="60" y2="60" stroke="#150826" stroke-width="1.5" />
+
+        <rect x="68" y="64" width="30" height="33" />
+      </g>
+
+      <!-- Lit Window Dots on buildings -->
+      <g fill="#ffe073" opacity="0.85">
+        <rect x="12" y="68" width="3" height="4" />
+        <rect x="18" y="68" width="3" height="4" />
+        <rect x="30" y="60" width="3.5" height="4" />
+        <rect x="38" y="60" width="3.5" height="4" />
+        <rect x="30" y="68" width="3.5" height="4" />
+        <rect x="50" y="66" width="3.5" height="4.5" />
+        <rect x="58" y="66" width="3.5" height="4.5" />
+        <rect x="74" y="70" width="3" height="4" />
+        <rect x="82" y="70" width="3" height="4" />
+      </g>
+    </g>
+
+    <!-- Scope Tactical Reticle Marks -->
+    <!-- Horizontal Crosshairs -->
+    <line x1="12" y1="52" x2="42" y2="52" stroke="#3be0e8" stroke-width="2" opacity="0.9" />
+    <line x1="62" y1="52" x2="92" y2="52" stroke="#3be0e8" stroke-width="2" opacity="0.9" />
+    <!-- Vertical Crosshairs -->
+    <line x1="52" y1="12" x2="52" y2="42" stroke="#3be0e8" stroke-width="2" opacity="0.9" />
+    <line x1="52" y1="62" x2="52" y2="92" stroke="#3be0e8" stroke-width="2" opacity="0.9" />
+
+    <!-- Sub-tick marks (Elevation & Windage) -->
+    <line x1="32" y1="49" x2="32" y2="55" stroke="#3be0e8" stroke-width="1.2" opacity="0.85" />
+    <line x1="22" y1="50" x2="22" y2="54" stroke="#3be0e8" stroke-width="1" opacity="0.75" />
+    <line x1="72" y1="49" x2="72" y2="55" stroke="#3be0e8" stroke-width="1.2" opacity="0.85" />
+    <line x1="82" y1="50" x2="82" y2="54" stroke="#3be0e8" stroke-width="1" opacity="0.75" />
+    <line x1="49" y1="32" x2="55" y2="32" stroke="#3be0e8" stroke-width="1.2" opacity="0.85" />
+    <line x1="49" y1="72" x2="55" y2="72" stroke="#3be0e8" stroke-width="1.2" opacity="0.85" />
+
+    <!-- Center Reticle Circle -->
+    <circle cx="52" cy="52" r="9" fill="none" stroke="#3be0e8" stroke-width="1.6" opacity="0.9" />
+
+    <!-- Red Laser Pointer Target Dot -->
+    <circle cx="52" cy="52" r="3.2" fill="#ff3344" filter="url(#laserGlow)" />
+    <circle cx="52" cy="52" r="1.2" fill="#ffffff" />
+  </g>
+
+  <!-- ==================== LOGOTYPE (RIGHT) ==================== -->
+  <g transform="translate(126, 0)">
+    <!-- 3D Shadow layer for 'ROOFTOP' -->
+    <text x="2" y="58" font-family="'Bungee', 'Impact', sans-serif" font-size="44" font-weight="900" fill="#751642" letter-spacing="0.04em">ROOFTOP</text>
+
+    <!-- Main Gradient Text for 'ROOFTOP' -->
+    <text x="0" y="54" font-family="'Bungee', 'Impact', sans-serif" font-size="44" font-weight="900" fill="url(#textRooftopGrad)" stroke="#1a072b" stroke-width="1.5" letter-spacing="0.04em">ROOFTOP</text>
+
+    <!-- Tactical Accent Line Divider -->
+    <path d="M 0 66 L 370 66" stroke="url(#cyanGlowLine)" stroke-width="2.5" stroke-linecap="round" />
+    <polygon points="185,63 190,66 185,69 180,66" fill="#ffc533" />
+
+    <!-- 'SNIPER' Text with Cyan Tactical Glow -->
+    <!-- Shadow for 'SNIPER' -->
+    <text x="2" y="104" font-family="'Bungee', 'Impact', sans-serif" font-size="34" font-weight="900" fill="#0d4052" letter-spacing="0.18em">SNIPER</text>
+
+    <!-- Main 'SNIPER' Text -->
+    <text x="0" y="102" font-family="'Bungee', 'Impact', sans-serif" font-size="34" font-weight="900" fill="url(#textSniperGrad)" stroke="#061f26" stroke-width="1.2" letter-spacing="0.18em">SNIPER</text>
+
+    <!-- Subtle Sub-badge pill 'URBAN TACTICAL' -->
+    <g transform="translate(232, 75)">
+      <rect x="0" y="0" width="138" height="20" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,197,51,0.5)" stroke-width="1" />
+      <text x="69" y="14" font-family="'Nunito', 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" fill="#ffc533" letter-spacing="0.14em" text-anchor="middle">ARCADE SHOOTER</text>
+    </g>
+  </g>
+</svg>
