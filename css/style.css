@@ -131,7 +131,7 @@ body.game-active .stage canvas, body.game-locked .stage canvas{
   max-height:calc(100vh - 66px)!important;
   max-height:calc(100dvh - 66px)!important;
   aspect-ratio:16/9;
-  object-fit:contain;
+  object-fit:fill!important;
   display:block;
 }
 

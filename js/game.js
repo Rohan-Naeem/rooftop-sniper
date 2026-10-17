@@ -207,11 +207,19 @@
 
   function testHit(o, x, y) {
     var s = o.s;
-    if (x < s.x || x > s.x + s.w || y < s.y || y > s.y + s.h) return 0;
-    var off = offsetOf(o), hx = s.x + 22, hy = s.y + off + 24;
-    if ((x - hx) * (x - hx) + (y - hy) * (y - hy) <= 144) return 2;          // head
-    if (x >= s.x + 6 && x <= s.x + 38 && y >= s.y + off + 34 && y <= s.y + off + 58) return 1; // body
-    return 0;
+    var pad = isTouch ? 14 : 7;
+    // Outside the window (with forgiving touch padding)
+    if (x < s.x - pad || x > s.x + s.w + pad || y < s.y - pad || y > s.y + s.h + pad) return 0;
+    var off = offsetOf(o);
+    var hx = s.x + 22;
+    var rHeadX = isTouch ? 18 : 14;
+
+    // Headshot: within head radius horizontally and at or above the neck line (s.y + off + 34)
+    if (Math.abs(x - hx) <= rHeadX && y <= s.y + off + 34) {
+      return 2;
+    }
+    // Body shot: anywhere else on the thief or window
+    return 1;
   }
 
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -223,7 +231,7 @@
     audio();
     var d = DIFFS[diffKey];
     G = { d: d, time: limitKey, limit: limitKey, score: 0, shots: 0, thieves: 0, heads: 0, civs: 0, combo: 0,
-          ammo: d.clip, reload: 0, spawn: 0.5, elapsed: 0, targets: [], texts: [], puffs: [],
+          ammo: d.clip, reload: 0, spawn: 0.5, elapsed: 0, targets: [], texts: [], puffs: [], bullets: [],
           mode: modeKey, lives: 3, trace: null };
     state = 'play';
     show(null);
@@ -259,6 +267,11 @@
   }
 
   function computeAim() {
+    if (isTouch) {
+      aimX = mx;
+      aimY = my;
+      return;
+    }
     var s = (state === 'play' && G) ? G.d.sway : 0;
     aimX = mx + (Math.sin(t * 1.7) + 0.5 * Math.sin(t * 2.9 + 1)) * s;
     aimY = my + (Math.cos(t * 1.3) + 0.5 * Math.cos(t * 2.3 + 2)) * s;
@@ -269,19 +282,43 @@
     G.reload = 1.2; sfx('reload');
   }
 
+  function updateMuzzle() {
+    var px = 72, py = H - 6;
+    var sx = px + 6, sy = py - 72 + Math.sin(t * 1.6) * 1.4;
+    var ang = Math.atan2(aimY - sy, Math.max(aimX - sx, 60));
+    ang = Math.max(-1.1, Math.min(0.45, ang));
+    var lx = 94;
+    muzzle.x = sx + lx * Math.cos(ang);
+    muzzle.y = sy + lx * Math.sin(ang);
+  }
+
   function shoot() {
     if (state !== 'play' || G.reload > 0) return;
     if (G.ammo <= 0) { startReload(); return; }
     G.ammo--; G.shots++; kick = 1; flash = 1; sfx('shot');
+    updateMuzzle();
     G.trace = { x0: muzzle.x, y0: muzzle.y, x1: aimX, y1: aimY, t: 0 };
 
-    var hit = null, part = 0, i;
-    for (i = G.targets.length - 1; i >= 0; i--) {
+    var hit = null, part = 0, bestDist = Infinity, i;
+    for (i = 0; i < G.targets.length; i++) {
       var o = G.targets[i];
       if (o.state !== 'up') continue;
-      part = testHit(o, aimX, aimY);
-      if (part) { hit = o; break; }
+      var p = testHit(o, aimX, aimY);
+      if (p) {
+        var cx0 = o.s.x + 22, cy0 = o.s.y + 29;
+        var dist = (aimX - cx0) * (aimX - cx0) + (aimY - cy0) * (aimY - cy0);
+        if (dist < bestDist) {
+          bestDist = dist;
+          hit = o;
+          part = p;
+        }
+      }
     }
+
+    if (G.bullets) {
+      G.bullets.push({ x: aimX, y: aimY, t: 0, hit: !!hit });
+    }
+
     if (hit) {
       hit.off0 = offsetOf(hit); hit.state = 'hit'; hit.fall = 0;
       var cx = hit.s.x + 22, cy = hit.s.y - 6;
@@ -375,6 +412,10 @@
     G.texts = G.texts.filter(function (x) { return x.t < 1.1; });
     G.puffs.forEach(function (p) { p.t += dt; });
     G.puffs = G.puffs.filter(function (p) { return p.t < 0.4; });
+    if (G.bullets) {
+      G.bullets.forEach(function (b) { b.t += dt; });
+      G.bullets = G.bullets.filter(function (b) { return b.t < 0.8; });
+    }
     if (G.trace) { G.trace.t += dt; if (G.trace.t > 0.1) G.trace = null; }
   }
 
@@ -532,6 +573,18 @@
         ctx.fillStyle = 'rgba(220,210,190,' + (0.6 * (1 - p.t / 0.4)) + ')';
         ctx.beginPath(); ctx.arc(p.x, p.y, 4 + p.t * 40, 0, Math.PI * 2); ctx.fill();
       });
+      if (G.bullets) {
+        G.bullets.forEach(function (b) {
+          var alpha = Math.max(0, 1 - b.t / 0.8);
+          ctx.save();
+          ctx.strokeStyle = b.hit ? 'rgba(255,230,120,' + (alpha * 0.9) + ')' : 'rgba(220,225,240,' + (alpha * 0.7) + ')';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath(); ctx.arc(b.x, b.y, 2 + b.t * 8, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = 'rgba(15,18,24,' + alpha + ')';
+          ctx.beginPath(); ctx.arc(b.x, b.y, 2.5, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        });
+      }
     }
     if (state === 'play') drawScope();
     if (G && G.trace) drawTrace();
@@ -839,45 +892,30 @@
     var r = canvas.getBoundingClientRect();
     if (!r.width || !r.height) return;
 
-    var cw = r.width;
-    var ch = r.height;
-    var cAspect = W / H; // 960 / 540 = 16/9
-    var rAspect = cw / ch;
-
-    var drawW = cw;
-    var drawH = ch;
-    var drawX = r.left;
-    var drawY = r.top;
-
-    if (rAspect > cAspect + 0.001) {
-      drawW = ch * cAspect;
-      drawX = r.left + (cw - drawW) / 2;
-    } else if (rAspect < cAspect - 0.001) {
-      drawH = cw / cAspect;
-      drawY = r.top + (ch - drawH) / 2;
-    }
-
-    var cx = e.clientX;
-    var cy = e.clientY;
+    var cx = 0, cy = 0;
     if (e.touches && e.touches.length > 0) {
       cx = e.touches[0].clientX;
       cy = e.touches[0].clientY;
     } else if (e.changedTouches && e.changedTouches.length > 0) {
       cx = e.changedTouches[0].clientX;
       cy = e.changedTouches[0].clientY;
+    } else if (typeof e.clientX === 'number') {
+      cx = e.clientX;
+      cy = e.clientY;
     }
 
-    mx = (cx - drawX) * W / drawW;
-    my = (cy - drawY) * H / drawH;
+    // Direct, exact 1:1 coordinate projection from canvas bounding rect to 960x540 internal coordinate space
+    mx = (cx - r.left) * (W / r.width);
+    my = (cy - r.top) * (H / r.height);
     mx = Math.max(0, Math.min(W, mx));
     my = Math.max(0, Math.min(H, my));
   }
 
   function handleAim(e) {
     pos(e);
-    var isTouchInput = e.pointerType === 'touch' || ('ontouchstart' in window && !e.pointerType) || isTouch;
+    var isTouchInput = isTouch || (e && e.pointerType === 'touch') || (e && e.touches !== undefined);
     if (isTouchInput) {
-      // Tap precisely where user touched (no scope sway on mobile taps)
+      isTouch = true;
       aimX = mx;
       aimY = my;
     } else {
@@ -888,18 +926,18 @@
   var lastShootTime = 0;
   function handleShoot(e) {
     var now = performance.now();
-    if (now - lastShootTime < 60) return;
+    if (now - lastShootTime < 40) return;
     lastShootTime = now;
     handleAim(e);
-    if (e.button === 2) startReload(); else shoot();
+    if (e && e.button === 2) startReload(); else shoot();
   }
 
-  canvas.addEventListener('pointermove', function (e) {
-    pos(e);
-    computeAim();
-  });
-
+  var handledTouch = false;
   canvas.addEventListener('pointerdown', function (e) {
+    if (handledTouch && e.pointerType === 'touch') {
+      handledTouch = false;
+      return;
+    }
     e.preventDefault();
     handleShoot(e);
   });
@@ -907,14 +945,31 @@
   canvas.addEventListener('touchstart', function (e) {
     if (e.touches && e.touches[0]) {
       e.preventDefault();
+      handledTouch = true;
+      setTimeout(function () { handledTouch = false; }, 200);
       handleShoot(e.touches[0]);
     }
   }, { passive: false });
 
+  canvas.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'touch') {
+      isTouch = true;
+      pos(e);
+      aimX = mx;
+      aimY = my;
+    } else {
+      pos(e);
+      computeAim();
+    }
+  });
+
   canvas.addEventListener('touchmove', function (e) {
     if (e.touches && e.touches[0]) {
       e.preventDefault();
+      isTouch = true;
       pos(e.touches[0]);
+      aimX = mx;
+      aimY = my;
     }
   }, { passive: false });
 
