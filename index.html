@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rooftop Sniper - Free Online Sniper Shooting Game</title>
+<meta name="description" content="Play Rooftop Sniper free in your browser. Choose Time Attack or Endless mode, pick a map and a difficulty, stop the thieves and spare the civilians. No download needed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <span class="brand">Rooftop Sniper</span>
+  <button id="muteBtn" class="mute" type="button">Sound on</button>
+</header>
+
+<main>
+  <div class="stage">
+    <canvas id="game" width="960" height="540" aria-label="Rooftop Sniper game area"></canvas>
+
+    <!-- Step 0: landing. Start button on the left, sniper stands on the right (drawn in the canvas) -->
+    <section class="screen landing" id="landing">
+      <h1 class="title">Rooftop<br>Sniper</h1>
+      <p class="tag">Stop the thieves. Spare the civilians.</p>
+      <button id="startBtn" class="btn xl" type="button">Start</button>
+      <p class="note">Free. Plays right in your browser.</p>
+    </section>
+
+    <!-- Menu steps: one choice per screen. The cards are filled in by js/game.js -->
+    <section class="screen panel hidden" id="wizard">
+      <div class="wz-top">
+        <button id="wzBack" class="btn small ghost" type="button">Back</button>
+        <span class="step" id="wzStep">Step 1</span>
+      </div>
+      <h2 id="wzTitle"></h2>
+      <div class="cards" id="wzCards"></div>
+    </section>
+
+    <!-- Game over -->
+    <section class="screen panel hidden" id="over">
+      <h2 id="oTitle">Time is up</h2>
+      <p class="rank" id="oRank"></p>
+      <ul class="stats">
+        <li><span>Score</span><b id="oScore">0</b></li>
+        <li><span>Best score</span><b id="oBest">0</b></li>
+        <li id="oSurvLi" class="hidden"><span>Time survived</span><b id="oSurv">0:00</b></li>
+        <li><span>Thieves stopped</span><b id="oThieves">0</b></li>
+        <li><span>Headshots</span><b id="oHeads">0</b></li>
+        <li><span>Accuracy</span><b id="oAcc">0%</b></li>
+        <li><span>Civilians hit</span><b id="oCivs">0</b></li>
+      </ul>
+      <div class="row">
+        <button id="changeBtn" class="btn ghost" type="button">New mission</button>
+        <button id="againBtn" class="btn" type="button">Play again</button>
+      </div>
+    </section>
+
+    <!-- Reload button: only shown on touch devices (phones, tablets) while playing -->
+    <button id="reloadBtn" class="btn small reload-btn hidden" type="button">Reload</button>
+
+    <!-- How to play popup: shown every time a round starts -->
+    <section class="screen panel hidden" id="help">
+      <h2>How to play</h2>
+      <ul class="help-list" id="helpList"></ul>
+      <button id="helpBtn" class="btn" type="button">Got it, start!</button>
+    </section>
+  </div>
+
+  <section class="info">
+    <h2>How to play</h2>
+    <p>You are a sniper on a rooftop. Look through your scope and stop the thieves who pop out of the windows. Thieves wear a black mask and a striped shirt. Civilians have a visible face and a colored shirt. Do not shoot them.</p>
+    <h3>Game modes</h3>
+    <ul>
+      <li><b>Time Attack:</b> choose 30, 60 or 90 seconds and score as many points as you can. Hitting a civilian costs you 4 seconds.</li>
+      <li><b>Endless:</b> you have 3 hearts. You lose one heart each time you shoot a civilian. Thieves that escape do not cost a heart, but they break your combo. The longer you last, the faster the targets come.</li>
+    </ul>
+    <h3>Controls</h3>
+    <ul>
+      <li>Move your mouse to aim. On a phone or tablet, tap where you want to shoot.</li>
+      <li>Left click to fire. Right click to reload. When your bullets run out, the rifle reloads by itself.</li>
+      <li>Press R or right click to reload early. On a phone or tablet, tap the Reload button.</li>
+    </ul>
+    <h3>Scoring</h3>
+    <ul>
+      <li>Body shot: 100 points. Headshot: 200 points.</li>
+      <li>Stop thieves in a row to build a combo and multiply your points.</li>
+      <li>Shooting a civilian costs you 150 points.</li>
+    </ul>
+    <h3>Questions</h3>
+    <p><b>Is it free?</b> Yes. Open the page and play. Nothing to install.</p>
+    <p><b>Does it work on mobile?</b> Yes. Turn your phone sideways for a bigger view.</p>
+  </section>
+</main>
+
+<script src="js/game.js"></script>
+</body>
+</html>

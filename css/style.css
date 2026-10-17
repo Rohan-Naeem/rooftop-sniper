@@ -1,0 +1,106 @@
+/* Rooftop Sniper - sunset arcade look
+   Palette: night plum, hot pink, sun gold, sky cyan */
+:root{
+  --bg:#120a2b; --card:rgba(32,15,70,.84); --line:rgba(255,255,255,.18);
+  --text:#fff4e8; --muted:#cdbbe9;
+  --gold:#ffc533; --gold-dark:#b87d00; --pink:#ff4d8d; --cyan:#3be0e8;
+  --display:"Bungee","Arial Black",Impact,sans-serif;
+  --body:"Nunito","Trebuchet MS","Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);font-family:var(--body);line-height:1.6;
+  background:radial-gradient(1100px 520px at 75% -10%,#4d1d6e 0%,transparent 62%),var(--bg)}
+.top,main{max-width:1100px;margin:0 auto;padding-left:16px;padding-right:16px}
+.top{padding-top:14px;padding-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:var(--display);font-size:1.1rem;color:var(--gold);letter-spacing:.04em}
+.mute{background:rgba(255,255,255,.08);border:2px solid var(--line);color:var(--text);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit;font-weight:700;font-size:.85rem}
+.mute:hover{border-color:var(--gold)}
+main{padding-bottom:48px}
+
+.stage{position:relative;border-radius:20px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 2px rgba(255,255,255,.12),0 20px 60px rgba(0,0,0,.55)}
+canvas{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none}
+canvas.playing{cursor:none}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:clamp(10px,3vw,28px);text-align:center;overflow:auto}
+.screen.hidden,.stats li.hidden{display:none}
+
+/* landing */
+.landing{align-items:flex-start;text-align:left;padding-left:7%;gap:0;width:62%}
+.title{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,7.2vw,5.2rem);line-height:1;margin:0 0 .3em;
+  color:#fff;text-shadow:0 4px 0 #8a1f55,0 12px 30px rgba(0,0,0,.45)}
+.tag{margin:0 0 1.3em;font-size:clamp(.8rem,2vw,1.35rem);font-weight:800;color:#ffe3c2;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.note{margin:1em 0 0;color:var(--muted);font-size:clamp(.7rem,1.4vw,.95rem);font-weight:700}
+
+/* buttons */
+.btn{font-family:var(--display);font-size:1.05rem;background:var(--gold);color:#2a1600;border:0;border-radius:14px;
+  padding:.7em 1.6em;cursor:pointer;box-shadow:0 5px 0 var(--gold-dark),0 12px 24px rgba(0,0,0,.35);
+  transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gold-dark)}
+.btn.xl{font-size:clamp(1.1rem,3.2vw,2rem);padding:.6em 1.9em}
+.btn.small{font-size:.85rem;padding:.5em 1.1em}
+.btn.ghost{background:rgba(255,255,255,.1);color:var(--text);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 2px var(--gold)}
+button:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* menu steps */
+.panel{background:radial-gradient(900px 500px at 50% 0%,rgba(120,40,150,.5),rgba(14,7,34,.92));padding-top:60px}
+.wz-top{position:absolute;top:14px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center}
+.step{color:var(--muted);font-weight:800}
+.panel h2{font-family:var(--display);font-weight:400;font-size:clamp(1.2rem,3.4vw,2.3rem);line-height:1.15;margin:0 0 6px}
+.cards{display:grid;gap:clamp(8px,2vw,18px);width:min(900px,100%)}
+.cards.n2{grid-template-columns:repeat(2,1fr);max-width:660px}
+.cards.n3{grid-template-columns:repeat(3,1fr)}
+.card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:clamp(12px,2.4vw,24px) clamp(8px,1.6vw,16px);
+  background:var(--card);border:2px solid var(--line);border-radius:18px;color:var(--text);font:inherit;cursor:pointer;
+  transition:transform .12s,border-color .12s,box-shadow .12s}
+.card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.card.on{border-color:var(--cyan)}
+.card b{font-family:var(--display);font-weight:400;font-size:clamp(.95rem,2.1vw,1.45rem)}
+.card small{color:var(--muted);font-size:clamp(.72rem,1.4vw,.98rem);line-height:1.35;font-weight:600}
+.vis{display:flex;align-items:center;justify-content:center;height:clamp(44px,9vw,74px);color:var(--gold)}
+.vis svg{width:clamp(36px,7vw,60px);height:auto}
+.sw{display:block;width:clamp(100px,22vw,200px);height:clamp(44px,9vw,74px);border-radius:10px;border:2px solid rgba(255,255,255,.25)}
+.num{font-family:var(--display);font-size:clamp(2rem,6vw,3.6rem);color:var(--gold);line-height:1}
+.pips{display:flex;gap:6px}
+.pips i{width:clamp(14px,3vw,22px);height:clamp(22px,4.5vw,34px);border-radius:4px;background:rgba(255,255,255,.2)}
+.pips i.on{background:var(--pink)}
+
+/* game over */
+.rank{margin:0;color:var(--gold);font-family:var(--display);font-size:clamp(1rem,2.4vw,1.5rem)}
+.stats{list-style:none;margin:0;padding:0;width:min(340px,100%)}
+.stats li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+.stats span{color:var(--muted);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+
+/* text under the game (SEO) */
+.info{max-width:760px;margin:36px auto 0}
+.info h2{font-family:var(--display);font-weight:400;font-size:1.5rem;margin-top:0}
+.info h3{margin:22px 0 4px;font-size:1.1rem;color:var(--gold)}
+.info p,.info li{color:#e3d8f3}
+.info ul{padding-left:20px}
+
+@media (max-width:700px){
+  .screen.panel{position:relative;inset:auto;padding:64px 14px 24px}
+  .cards.n2,.cards.n3{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* how to play popup */
+.help-list{list-style:none;margin:0 0 6px;padding:0;width:min(520px,100%);text-align:left}
+.help-list li{padding:7px 0;border-bottom:1px solid var(--line);font-weight:700;font-size:clamp(.8rem,1.8vw,1.05rem);line-height:1.35}
+.help-list b{color:var(--gold)}
+.help-list .bad,.help-list .bad b{color:#ff6b70}
+
+/* reload button (touch devices) */
+.reload-btn{position:absolute;right:12px;bottom:12px;z-index:5;font-size:1rem;padding:.7em 1.3em;touch-action:manipulation}
+.reload-btn.hidden{display:none}
+/* keep the popup as an overlay on small screens, and make it compact */
+@media (max-width:700px){
+  #help.screen.panel{position:absolute;inset:0;padding:40px 12px 12px;gap:6px}
+  #help h2{font-size:1rem;margin:0}
+  .help-list li{padding:3px 0;font-size:.72rem;line-height:1.25}
+  #help .btn{font-size:.85rem;padding:.5em 1.2em}
+}
