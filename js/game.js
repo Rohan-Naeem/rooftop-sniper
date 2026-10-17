@@ -837,14 +837,87 @@
 
   function pos(e) {
     var r = canvas.getBoundingClientRect();
-    mx = (e.clientX - r.left) * W / r.width;
-    my = (e.clientY - r.top) * H / r.height;
+    if (!r.width || !r.height) return;
+
+    var cw = r.width;
+    var ch = r.height;
+    var cAspect = W / H; // 960 / 540 = 16/9
+    var rAspect = cw / ch;
+
+    var drawW = cw;
+    var drawH = ch;
+    var drawX = r.left;
+    var drawY = r.top;
+
+    if (rAspect > cAspect + 0.001) {
+      drawW = ch * cAspect;
+      drawX = r.left + (cw - drawW) / 2;
+    } else if (rAspect < cAspect - 0.001) {
+      drawH = cw / cAspect;
+      drawY = r.top + (ch - drawH) / 2;
+    }
+
+    var cx = e.clientX;
+    var cy = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+      cx = e.touches[0].clientX;
+      cy = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      cx = e.changedTouches[0].clientX;
+      cy = e.changedTouches[0].clientY;
+    }
+
+    mx = (cx - drawX) * W / drawW;
+    my = (cy - drawY) * H / drawH;
+    mx = Math.max(0, Math.min(W, mx));
+    my = Math.max(0, Math.min(H, my));
   }
-  canvas.addEventListener('pointermove', pos);
-  canvas.addEventListener('pointerdown', function (e) {
-    pos(e); computeAim();
-    if (e.button === 2) startReload(); else shoot();   // right click = reload
+
+  function handleAim(e) {
+    pos(e);
+    var isTouchInput = e.pointerType === 'touch' || ('ontouchstart' in window && !e.pointerType) || isTouch;
+    if (isTouchInput) {
+      // Tap precisely where user touched (no scope sway on mobile taps)
+      aimX = mx;
+      aimY = my;
+    } else {
+      computeAim();
+    }
+  }
+
+  var lastShootTime = 0;
+  function handleShoot(e) {
+    var now = performance.now();
+    if (now - lastShootTime < 60) return;
+    lastShootTime = now;
+    handleAim(e);
+    if (e.button === 2) startReload(); else shoot();
+  }
+
+  canvas.addEventListener('pointermove', function (e) {
+    pos(e);
+    computeAim();
   });
+
+  canvas.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    handleShoot(e);
+  });
+
+  canvas.addEventListener('touchstart', function (e) {
+    if (e.touches && e.touches[0]) {
+      e.preventDefault();
+      handleShoot(e.touches[0]);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function (e) {
+    if (e.touches && e.touches[0]) {
+      e.preventDefault();
+      pos(e.touches[0]);
+    }
+  }, { passive: false });
+
   canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   window.addEventListener('keydown', function (e) {
     if ((e.key === 'r' || e.key === 'R') && state === 'play' && !helpOpen) startReload();
